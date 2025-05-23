@@ -2,7 +2,6 @@
 
 import React, { useCallback, useState } from "react";
 
-import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 import { cn, convertFileToUrl, getFileType } from "@/lib/utils";
 import Image from "next/image";
@@ -11,6 +10,7 @@ import { MAX_FILE_SIZE } from "@/constants";
 import { useToast } from "@/hooks/use-toast";
 import { uploadFile } from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
+import { useDropzone } from "react-dropzone";
 
 interface Props {
   ownerId: string;
@@ -30,7 +30,7 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
       const uploadPromises = acceptedFiles.map(async (file) => {
         if (file.size > MAX_FILE_SIZE) {
           setFiles((prevFiles) =>
-            prevFiles.filter((f) => f.name !== file.name),
+            prevFiles.filter((f) => f.name !== file.name)
           );
 
           return toast({
@@ -44,27 +44,67 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
           });
         }
 
-        return uploadFile({ file, ownerId, accountId, path }).then(
-          (uploadedFile) => {
-            if (uploadedFile) {
-              setFiles((prevFiles) =>
-                prevFiles.filter((f) => f.name !== file.name),
-              );
-            }
-          },
-        );
+        const res = await uploadFile({ file, ownerId, accountId, path });
+        setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
+        console.log("file result", res);
+        if (res?.success) {
+          toast({
+            description: `${file.name} uploaded successfully!`,
+          });
+        } else {
+          toast({
+            description: `Failed to upload ${file.name}: ${res?.error || "Unknown error"}`,
+            className: "error-toast",
+          });
+        }
+
+        // return uploadFile({ file, ownerId, accountId, path }).then(
+        //   (uploadedFile) => {
+        //     if (uploadedFile) {
+        //       setFiles((prevFiles) =>
+        //         prevFiles.filter((f) => f.name !== file.name)
+        //       );
+        //     }
+        //   }
+        // );
+        // return fetch("/api/upload", {
+        //   method: "POST",
+        //   body: (() => {
+        //     const formData = new FormData();
+        //     formData.append("file", file);
+        //     formData.append("ownerId", ownerId);
+        //     formData.append("accountId", accountId);
+        //     return formData;
+        //   })(),
+        // }).then(async (res) => {
+        //   const data = await res.json();
+
+        //   if (!res.ok) {
+        //     toast({
+        //       description: `Failed to upload ${file.name}: ${data.error || "Unknown error"}`,
+        //       className: "error-toast",
+        //     });
+        //   } else {
+        //     setFiles((prevFiles) =>
+        //       prevFiles.filter((f) => f.name !== file.name)
+        //     );
+        //     toast({
+        //       description: `${file.name} uploaded successfully!`,
+        //     });
+        //   }
+        // });
       });
 
       await Promise.all(uploadPromises);
     },
-    [ownerId, accountId, path],
+    [ownerId, accountId, path]
   );
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   const handleRemoveFile = (
     e: React.MouseEvent<HTMLImageElement, MouseEvent>,
-    fileName: string,
+    fileName: string
   ) => {
     e.stopPropagation();
     setFiles((prevFiles) => prevFiles.filter((file) => file.name !== fileName));

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { navItems } from "@/constants";
+import { avatarPlaceholderUrl, navItems } from "@/constants";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -42,7 +42,7 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
               <li
                 className={cn(
                   "sidebar-nav-item",
-                  pathname === url && "shad-active",
+                  pathname === url && "shad-active"
                 )}
               >
                 <Image
@@ -52,7 +52,7 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
                   height={24}
                   className={cn(
                     "nav-icon",
-                    pathname === url && "nav-icon-active",
+                    pathname === url && "nav-icon-active"
                   )}
                 />
                 <p className="hidden lg:block">{name}</p>
@@ -72,7 +72,7 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
 
       <div className="sidebar-user-info">
         <Image
-          src={avatar}
+          src={avatar ?? avatarPlaceholderUrl}
           alt="Avatar"
           width={44}
           height={44}

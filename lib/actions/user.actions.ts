@@ -68,6 +68,8 @@ export const createAccount = async ({
   return parseStringify({ accountId });
 };
 
+
+
 export const verifySecret = async ({
   accountId,
   password,
